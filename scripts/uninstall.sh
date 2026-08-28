@@ -26,6 +26,7 @@ readonly SERVICE_HOME_EXPECTED="/home/codex-anchor"
 readonly PROGRAM_DIR="/usr/local/libexec/codex-window-anchor"
 readonly RUNNER_DST="${PROGRAM_DIR}/run-anchor.sh"
 readonly RUNTIME_CODEX_BIN="/usr/local/bin/codex-window-anchor"
+readonly SCHEDULE_HELPER_DST="/usr/local/sbin/codex-window-anchor-schedule"
 
 readonly CONFIG_DIR="/etc/codex-window-anchor"
 readonly CONFIG_FILE="${CONFIG_DIR}/anchor.conf"
@@ -680,6 +681,7 @@ systemctl reset-failed "$SERVICE_NAME" >/dev/null 2>&1 || true
 systemctl reset-failed "$TIMER_NAME" >/dev/null 2>&1 || true
 
 remove_managed_text_file "$RUNNER_DST"
+remove_managed_text_file "$SCHEDULE_HELPER_DST"
 remove_managed_text_file "$CONFIG_FILE"
 
 remove_runtime_binary "$RUNTIME_CODEX_BIN"
@@ -718,6 +720,7 @@ Removed when safely recognized as Anchor-managed:
   - Anchor systemd timer
   - Anchor systemd service
   - Anchor runner
+  - Anchor schedule command
   - Anchor runtime snapshot
   - Anchor configuration
   - empty Anchor runtime directories

@@ -1,0 +1,22 @@
+# Managed-By: codex-window-anchor
+#
+# Non-live reference structure only.
+# scripts/configure-schedule.sh generates validated OnCalendar entries from
+# the timezone and times explicitly supplied by the user. This template is
+# never installed under /etc/systemd/system.
+
+[Unit]
+Description=Codex Window Anchor Schedule
+Documentation=https://github.com/LHann79357/codex-window-anchor
+
+[Timer]
+# Generated OnCalendar entries appear here.
+
+AccuracySec=30s
+RandomizedDelaySec=0
+Persistent=false
+
+Unit=codex-window-anchor.service
+
+[Install]
+WantedBy=timers.target

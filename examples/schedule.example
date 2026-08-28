@@ -1,0 +1,17 @@
+# Examples only.
+# Choose your own timezone and times.
+# These are not recommended or quota-optimization schedules.
+
+# One daily Anchor:
+sudo codex-window-anchor-schedule \
+  --timezone Etc/UTC \
+  --time 09:30
+
+# Multiple daily Anchors:
+sudo codex-window-anchor-schedule \
+  --timezone Europe/Berlin \
+  --time 07:15 \
+  --time 16:45
+
+# Every scheduled Anchor is a real Codex request and consumes real allowance.
+# Additional scheduled Anchors do not create additional quota.

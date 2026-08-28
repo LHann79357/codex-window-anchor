@@ -26,6 +26,7 @@ readonly SERVICE_HOME="/home/codex-anchor"
 readonly PROGRAM_DIR="/usr/local/libexec/codex-window-anchor"
 readonly RUNNER_DST="${PROGRAM_DIR}/run-anchor.sh"
 readonly RUNTIME_CODEX_BIN="/usr/local/bin/codex-window-anchor"
+readonly SCHEDULE_HELPER_DST="/usr/local/sbin/codex-window-anchor-schedule"
 
 readonly CONFIG_DIR="/etc/codex-window-anchor"
 readonly CONFIG_FILE="${CONFIG_DIR}/anchor.conf"
@@ -46,8 +47,8 @@ readonly SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd -P)"
 
 readonly RUNNER_SRC="${REPO_ROOT}/scripts/run-anchor.sh"
+readonly SCHEDULE_HELPER_SRC="${REPO_ROOT}/scripts/configure-schedule.sh"
 readonly SERVICE_SRC="${REPO_ROOT}/systemd/codex-window-anchor.service"
-readonly TIMER_SRC="${REPO_ROOT}/systemd/codex-window-anchor.timer"
 
 CODEX_SOURCE_ARG=""
 CODEX_MODEL="gpt-5.6-luna"
@@ -262,25 +263,6 @@ reject_systemd_collision() {
     fail "a same-name systemd unit file, alias, or enablement already exists: $unit"
 }
 
-prove_timer_disabled_and_inactive() {
-  local state=""
-  local status=0
-
-  set +e
-  state="$(systemctl is-enabled "$TIMER_NAME" 2>/dev/null)"
-  status=$?
-  set -e
-  [[ "$status" -eq 1 && "$state" == "disabled" ]] || \
-    fail "timer disabled-state proof failed (status=$status, state=${state:-unknown})"
-
-  set +e
-  state="$(systemctl is-active "$TIMER_NAME" 2>/dev/null)"
-  status=$?
-  set -e
-  [[ "$status" -eq 3 && "$state" == "inactive" ]] || \
-    fail "timer inactive-state proof failed (status=$status, state=${state:-unknown})"
-}
-
 stage_codex_source() {
   local staging_user=""
   local source_owner=""
@@ -463,17 +445,20 @@ done
 [[ -f "$RUNNER_SRC" ]] || \
   fail "repository file is missing: $RUNNER_SRC"
 
+[[ -f "$SCHEDULE_HELPER_SRC" ]] || \
+  fail "repository file is missing: $SCHEDULE_HELPER_SRC"
+
 [[ -f "$SERVICE_SRC" ]] || \
   fail "repository file is missing: $SERVICE_SRC"
-
-[[ -f "$TIMER_SRC" ]] || \
-  fail "repository file is missing: $TIMER_SRC"
 
 [[ "$CODEX_MODEL" =~ ^[A-Za-z0-9._:-]+$ ]] || \
   fail "model identifier contains unsupported characters"
 
 [[ -x /usr/bin/env ]] || \
   fail "required executable was not found: /usr/bin/env"
+
+[[ -d /usr/local/sbin && ! -L /usr/local/sbin ]] || \
+  fail "required administrative command directory is unavailable: /usr/local/sbin"
 
 getent passwd "$PROBE_USER" >/dev/null 2>&1 || \
   fail "required unprivileged probe identity was not found: $PROBE_USER"
@@ -522,6 +507,7 @@ for path in \
   "$PROGRAM_DIR" \
   "$STATE_DIR" \
   "$RUNTIME_CODEX_BIN" \
+  "$SCHEDULE_HELPER_DST" \
   "$SERVICE_DST" \
   "$TIMER_DST"
 do
@@ -693,6 +679,18 @@ install \
   "$RUNNER_SRC" \
   "$RUNNER_DST"
 
+install \
+  -o root \
+  -g root \
+  -m 0755 \
+  "$SCHEDULE_HELPER_SRC" \
+  "$SCHEDULE_HELPER_DST"
+
+if command -v restorecon >/dev/null 2>&1; then
+  restorecon -F "$SCHEDULE_HELPER_DST" || \
+    fail "could not restore the SELinux context for the schedule command"
+fi
+
 cat >"$CONFIG_FILE" <<EOF
 # Managed-By: codex-window-anchor
 # Non-secret runtime configuration.
@@ -711,21 +709,16 @@ install \
   "$SERVICE_SRC" \
   "$SERVICE_DST"
 
-install \
-  -o root \
-  -g root \
-  -m 0644 \
-  "$TIMER_SRC" \
-  "$TIMER_DST"
-
 if command -v systemd-analyze >/dev/null 2>&1; then
-  systemd-analyze verify "$SERVICE_DST" "$TIMER_DST" || \
-    fail "systemd unit verification failed"
+  systemd-analyze verify "$SERVICE_DST" || \
+    fail "systemd service verification failed"
 fi
 
 systemctl daemon-reload
 
-prove_timer_disabled_and_inactive
+# Installation creates no timer unit. Recheck the complete timer namespace
+# after daemon-reload so a live schedule cannot appear during installation.
+reject_systemd_collision "$TIMER_NAME"
 
 INSTALL_STATE="complete"
 write_meta
@@ -751,7 +744,8 @@ Configured model:
 IMPORTANT:
   No ChatGPT login was performed.
   No Anchor request was sent.
-  The systemd timer is NOT enabled.
+  No Anchor schedule was created.
+  No systemd timer is enabled or active.
 
 Next steps:
 
@@ -771,13 +765,17 @@ Next steps:
 
    sudo systemctl start ${SERVICE_NAME}
 
-4. Review the timer schedule and timezone:
+4. Choose your own timezone and one or more Anchor times:
 
-   sudoedit ${TIMER_DST}
+   sudo codex-window-anchor-schedule \
+     --timezone <Area/City> \
+     --time <HH:MM> \
+     [--time <HH:MM> ...]
 
-5. Reload systemd after editing:
+5. Review the generated schedule:
 
-   sudo systemctl daemon-reload
+   systemctl cat ${TIMER_NAME}
+   systemctl list-timers ${TIMER_NAME}
 
 6. Explicitly enable scheduling only when ready:
 
