@@ -1,0 +1,22 @@
+# Managed-By: codex-window-anchor
+
+[Unit]
+Description=Codex Window Anchor
+Documentation=https://github.com/LHann79357/codex-window-anchor
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+
+User=codex-anchor
+Group=codex-anchor
+
+WorkingDirectory=/var/lib/codex-window-anchor/work
+ExecStart=/usr/local/libexec/codex-window-anchor/run-anchor.sh
+
+NoNewPrivileges=true
+PrivateTmp=true
+UMask=0077
+
+TimeoutStartSec=180
