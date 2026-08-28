@@ -19,6 +19,8 @@ readonly CONFIG_FILE="/etc/codex-window-anchor/anchor.conf"
 readonly SERVICE_HOME="/home/codex-anchor"
 readonly CODEX_HOME_DIR="${SERVICE_HOME}/.codex"
 readonly WORK_DIR="/var/lib/codex-window-anchor/work"
+readonly SQLITE_DIR="/var/lib/codex-window-anchor/sqlite"
+readonly SERVICE_USER="codex-anchor"
 
 readonly ANCHOR_PROMPT='Reply exactly with OK. Do not inspect files, run commands, browse the web, use tools, or perform any additional work.'
 
@@ -57,21 +59,39 @@ source "$CONFIG_FILE"
 [[ -d "$WORK_DIR" ]] || \
   fail "working directory does not exist: $WORK_DIR"
 
-export HOME="$SERVICE_HOME"
-export CODEX_HOME="$CODEX_HOME_DIR"
+[[ -d "$SQLITE_DIR" ]] || \
+  fail "Codex SQLite state directory does not exist: $SQLITE_DIR"
 
-# V1 uses stored ChatGPT authentication rather than API-key or access-token
-# authentication. Clear ambient credential variables so a server-wide
-# environment cannot silently change the authentication route.
-unset OPENAI_API_KEY
-unset CODEX_API_KEY
-unset CODEX_ACCESS_TOKEN
-unset OPENAI_BASE_URL
+# Build an explicit environment rather than inheriting the systemd manager's
+# authentication, provider, base-URL, or workload-identity inputs. This clears
+# OPENAI_API_KEY, CODEX_API_KEY, CODEX_ACCESS_TOKEN, OPENAI_BASE_URL,
+# OPENAI_FEDERATION_RULE_ID, OPENAI_IDENTITY_TOKEN_FILE, and every other
+# non-allowlisted switch. V1 retains only conventional proxy and CA variables.
+runtime_env=(
+  "HOME=$SERVICE_HOME"
+  "USER=$SERVICE_USER"
+  "LOGNAME=$SERVICE_USER"
+  "SHELL=/bin/bash"
+  "PATH=/usr/local/bin:/usr/bin:/bin"
+  "CODEX_HOME=$CODEX_HOME_DIR"
+  "CODEX_SQLITE_HOME=$SQLITE_DIR"
+)
+
+for name in \
+  HTTP_PROXY HTTPS_PROXY ALL_PROXY NO_PROXY \
+  http_proxy https_proxy all_proxy no_proxy \
+  CODEX_CA_CERTIFICATE SSL_CERT_FILE SSL_CERT_DIR \
+  CURL_CA_BUNDLE REQUESTS_CA_BUNDLE
+do
+  if [[ -v "$name" ]]; then
+    runtime_env+=("$name=${!name}")
+  fi
+done
 
 cd "$WORK_DIR"
 
 # One invocation equals at most one intended Anchor request.
-exec "$CODEX_BIN" exec \
+exec /usr/bin/env -i "${runtime_env[@]}" "$CODEX_BIN" exec \
   --model "$CODEX_MODEL" \
   --ephemeral \
   --ignore-user-config \
