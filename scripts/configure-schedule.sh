@@ -17,7 +17,7 @@ readonly META_FILE="${CONFIG_DIR}/install.meta"
 
 readonly RUNNER_DST="/usr/local/libexec/codex-window-anchor/run-anchor.sh"
 readonly RUNTIME_CODEX_BIN="/usr/local/bin/codex-window-anchor"
-readonly SCHEDULE_HELPER_DST="/usr/local/sbin/codex-window-anchor-schedule"
+readonly SCHEDULE_HELPER_DST="/usr/local/bin/codex-window-anchor-schedule"
 
 readonly UNIT_DIR="/etc/systemd/system"
 readonly SERVICE_NAME="codex-window-anchor.service"
@@ -32,11 +32,12 @@ TIMER_PRESENT=0
 TIMER_TMP=""
 declare -a REQUESTED_TIMES=()
 declare -a TIMES=()
+declare -a ORIGINAL_ARGS=("$@")
 
 usage() {
   cat <<'EOF'
 Usage:
-  sudo codex-window-anchor-schedule \
+  codex-window-anchor-schedule \
     --timezone AREA/CITY \
     --time HH:MM [--time HH:MM ...]
 
@@ -68,6 +69,45 @@ trap cleanup EXIT
 require_cmd() {
   command -v "$1" >/dev/null 2>&1 || \
     fail "required command was not found: $1"
+}
+
+resolve_self_for_elevation() {
+  local invoked_path="${BASH_SOURCE[0]}"
+  local candidate=""
+  local resolved_path=""
+
+  [[ -x /usr/bin/readlink && -x /usr/bin/stat && -x /usr/bin/grep ]] || return 1
+
+  if [[ "$invoked_path" == */* ]]; then
+    candidate="$invoked_path"
+  else
+    candidate="$(command -v -- "$invoked_path" 2>/dev/null || true)"
+  fi
+
+  [[ -n "$candidate" ]] || return 1
+  resolved_path="$(/usr/bin/readlink -f -- "$candidate" 2>/dev/null || true)"
+  [[ "$resolved_path" == "$SCHEDULE_HELPER_DST" ]] || return 1
+  [[ -d /usr/local/bin && ! -L /usr/local/bin ]] || return 1
+  [[ "$(/usr/bin/stat -c '%U:%G' /usr/local/bin 2>/dev/null || true)" == "root:root" ]] || return 1
+  [[ "$(/usr/bin/stat -c '%a' /usr/local/bin 2>/dev/null || true)" == "755" ]] || return 1
+  [[ -f "$resolved_path" && ! -L "$resolved_path" ]] || return 1
+  [[ "$(/usr/bin/stat -c '%U:%G' "$resolved_path" 2>/dev/null || true)" == "root:root" ]] || return 1
+  [[ "$(/usr/bin/stat -c '%a' "$resolved_path" 2>/dev/null || true)" == "755" ]] || return 1
+  /usr/bin/grep -Fqx '# Managed-By: codex-window-anchor' "$resolved_path" || return 1
+
+  printf '%s\n' "$resolved_path"
+}
+
+self_elevate_if_needed() {
+  local self_path=""
+
+  (( EUID != 0 )) || return 0
+  [[ -x /usr/bin/sudo ]] || fail "sudo is required to update the systemd timer"
+  self_path="$(resolve_self_for_elevation)" || \
+    fail "refusing to elevate an unrecognized schedule command"
+
+  exec /usr/bin/sudo -- "$self_path" "${ORIGINAL_ARGS[@]}"
+  fail "could not re-execute the schedule command through sudo"
 }
 
 meta_value() {
@@ -445,16 +485,21 @@ done
 
 (( TIMEZONE_COUNT == 1 )) || fail "exactly one --timezone AREA/CITY is required"
 
-(( EUID == 0 )) || fail "run this schedule command with sudo or as root"
 [[ "$(uname -s)" == "Linux" ]] || \
   fail "V1 reference target is AlmaLinux 8.10; schedule configuration requires Linux"
 
-for cmd in systemctl grep getent id stat sha256sum readlink sort find mktemp mv chmod chown rm cat; do
+for cmd in readlink sort; do
   require_cmd "$cmd"
 done
 
 validate_timezone
 normalize_times
+self_elevate_if_needed
+
+for cmd in systemctl grep getent id stat sha256sum readlink sort find mktemp mv chmod chown rm cat; do
+  require_cmd "$cmd"
+done
+
 validate_complete_installation
 validate_timer_target
 write_timer_candidate

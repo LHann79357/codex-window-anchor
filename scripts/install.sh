@@ -26,7 +26,8 @@ readonly SERVICE_HOME="/home/codex-anchor"
 readonly PROGRAM_DIR="/usr/local/libexec/codex-window-anchor"
 readonly RUNNER_DST="${PROGRAM_DIR}/run-anchor.sh"
 readonly RUNTIME_CODEX_BIN="/usr/local/bin/codex-window-anchor"
-readonly SCHEDULE_HELPER_DST="/usr/local/sbin/codex-window-anchor-schedule"
+readonly SCHEDULE_HELPER_DST="/usr/local/bin/codex-window-anchor-schedule"
+readonly LEGACY_SCHEDULE_HELPER_DST="/usr/local/sbin/codex-window-anchor-schedule"
 
 readonly CONFIG_DIR="/etc/codex-window-anchor"
 readonly CONFIG_FILE="${CONFIG_DIR}/anchor.conf"
@@ -58,6 +59,7 @@ SERVICE_GROUP_GID=""
 RUNTIME_CODEX_SHA256=""
 INSTALL_STATE="preparing"
 REUSE_PRESERVED_IDENTITY=0
+REMOVE_LEGACY_SCHEDULE_HELPER=0
 STAGED_SOURCE=""
 PROBE_GROUP=""
 
@@ -132,6 +134,25 @@ trap on_exit EXIT
 require_cmd() {
   command -v "$1" >/dev/null 2>&1 || \
     fail "required command was not found: $1"
+}
+
+is_exact_managed_schedule_helper() {
+  local path="$1"
+
+  [[ -f "$path" && ! -L "$path" ]] || return 1
+  [[ "$(stat -c '%U:%G' "$path" 2>/dev/null || true)" == "root:root" ]] || return 1
+  [[ "$(stat -c '%a' "$path" 2>/dev/null || true)" == "755" ]] || return 1
+  grep -Fqx '# Managed-By: codex-window-anchor' "$path"
+}
+
+plan_legacy_schedule_helper_removal() {
+  if [[ ! -e "$LEGACY_SCHEDULE_HELPER_DST" && ! -L "$LEGACY_SCHEDULE_HELPER_DST" ]]; then
+    return 0
+  fi
+
+  is_exact_managed_schedule_helper "$LEGACY_SCHEDULE_HELPER_DST" || \
+    fail "legacy schedule-command path is not an exact project-managed file: $LEGACY_SCHEDULE_HELPER_DST"
+  REMOVE_LEGACY_SCHEDULE_HELPER=1
 }
 
 write_meta() {
@@ -457,8 +478,11 @@ done
 [[ -x /usr/bin/env ]] || \
   fail "required executable was not found: /usr/bin/env"
 
-[[ -d /usr/local/sbin && ! -L /usr/local/sbin ]] || \
-  fail "required administrative command directory is unavailable: /usr/local/sbin"
+[[ -d /usr/local/bin && ! -L /usr/local/bin ]] || \
+  fail "required public command directory is unavailable: /usr/local/bin"
+[[ "$(stat -c '%U:%G' /usr/local/bin 2>/dev/null || true)" == "root:root" && \
+   "$(stat -c '%a' /usr/local/bin 2>/dev/null || true)" == "755" ]] || \
+  fail "public command directory ownership or mode is unsafe: /usr/local/bin"
 
 getent passwd "$PROBE_USER" >/dev/null 2>&1 || \
   fail "required unprivileged probe identity was not found: $PROBE_USER"
@@ -502,6 +526,8 @@ CODEX_SOURCE="$(find_codex_source)"
 
 info "Codex source selected by the root operator: $CODEX_SOURCE"
 info "The installer does not establish publisher provenance; the operator is responsible for selecting an official standalone Codex executable."
+
+plan_legacy_schedule_helper_removal
 
 for path in \
   "$PROGRAM_DIR" \
@@ -691,6 +717,14 @@ if command -v restorecon >/dev/null 2>&1; then
     fail "could not restore the SELinux context for the schedule command"
 fi
 
+if (( REMOVE_LEGACY_SCHEDULE_HELPER == 1 )); then
+  is_exact_managed_schedule_helper "$LEGACY_SCHEDULE_HELPER_DST" || \
+    fail "legacy schedule command changed after preflight; refusing removal"
+  rm -f -- "$LEGACY_SCHEDULE_HELPER_DST" || \
+    fail "could not remove the legacy project-managed schedule command"
+  info "Removed legacy schedule command: $LEGACY_SCHEDULE_HELPER_DST"
+fi
+
 cat >"$CONFIG_FILE" <<EOF
 # Managed-By: codex-window-anchor
 # Non-secret runtime configuration.
@@ -767,7 +801,7 @@ Next steps:
 
 4. Choose your own timezone and one or more Anchor times:
 
-   sudo codex-window-anchor-schedule \
+   codex-window-anchor-schedule \
      --timezone <Area/City> \
      --time <HH:MM> \
      [--time <HH:MM> ...]

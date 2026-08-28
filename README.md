@@ -153,22 +153,14 @@ Because this is a `Type=oneshot` service, a successful run normally returns to `
 ### 5. Configure your own schedule
 
 ```bash
-sudo codex-window-anchor-schedule \
-  --timezone <Area/City> \
-  --time <HH:MM> \
-  [--time <HH:MM> ...]
+codex-window-anchor-schedule \
+  --timezone Asia/Shanghai \
+  --time 08:00 \
+  --time 13:05 \
+  --time 18:10
 ```
 
-**Syntax example only — choose your own timezone and times:**
-
-```bash
-sudo codex-window-anchor-schedule \
-  --timezone America/New_York \
-  --time 07:30 \
-  --time 19:15
-```
-
-The command validates the installed timezone and strict 24-hour times, removes duplicates, generates the timer atomically, reloads systemd, and proves the timer remains disabled and inactive. It never enables or starts the timer.
+Choose your own timezone and times. The helper requests sudo only when it needs to update the systemd timer. It validates the installed timezone and strict 24-hour times, removes duplicates, generates the timer atomically, reloads systemd, and proves the timer remains disabled and inactive. It never enables or starts the timer.
 
 More scheduled Anchors mean more real Codex requests and more real allowance consumption. More scheduled Anchors do **not** create additional quota.
 
@@ -212,7 +204,7 @@ Pausing the timer does not remove the installation or ChatGPT authentication sta
 To change the schedule later:
 
 1. Disable and stop the timer with `sudo systemctl disable --now codex-window-anchor.timer`.
-2. Run `sudo codex-window-anchor-schedule` again with exactly one timezone and your chosen times.
+2. Run `codex-window-anchor-schedule` again with exactly one timezone and your chosen times.
 3. Review the generated timer.
 4. Explicitly enable the timer again only when ready.
 

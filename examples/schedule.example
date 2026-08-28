@@ -3,12 +3,12 @@
 # These are not recommended or quota-optimization schedules.
 
 # One daily Anchor:
-sudo codex-window-anchor-schedule \
+codex-window-anchor-schedule \
   --timezone Etc/UTC \
   --time 09:30
 
 # Multiple daily Anchors:
-sudo codex-window-anchor-schedule \
+codex-window-anchor-schedule \
   --timezone Europe/Berlin \
   --time 07:15 \
   --time 16:45
