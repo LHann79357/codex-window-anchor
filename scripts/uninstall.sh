@@ -513,6 +513,51 @@ prove_timer_disabled() {
     fail "could not prove $TIMER_NAME disabled; installation metadata was retained (status=$status, state=${state:-unknown})"
 }
 
+resolve_service_stop_state() {
+  local manager_state=""
+  local load_state=""
+  local active_state=""
+
+  # systemd 239 may drop an inactive unit from memory, and StopUnit then
+  # returns "not loaded". Query machine-readable state before deciding
+  # whether a stop job is necessary.
+  manager_state="$(systemctl show "$SERVICE_NAME" \
+    --property=LoadState \
+    --property=ActiveState 2>/dev/null)" || \
+    fail "could not query exact systemd state for $SERVICE_NAME; no managed files were removed and metadata was retained"
+
+  load_state="$(grep -m1 '^LoadState=' <<<"$manager_state" || true)"
+  load_state="${load_state#LoadState=}"
+  active_state="$(grep -m1 '^ActiveState=' <<<"$manager_state" || true)"
+  active_state="${active_state#ActiveState=}"
+
+  if [[ "$load_state" == "not-found" && "$active_state" == "inactive" ]]; then
+    info "Already absent and stopped: $SERVICE_NAME"
+    return 0
+  fi
+
+  if [[ "$load_state" == "loaded" && "$active_state" == "inactive" ]]; then
+    info "Already stopped: $SERVICE_NAME"
+    return 0
+  fi
+
+  [[ "$load_state" == "loaded" ]] || \
+    fail "ambiguous systemd load state for $SERVICE_NAME; no managed files were removed and metadata was retained (load=${load_state:-unknown}, active=${active_state:-unknown})"
+  case "$active_state" in
+    active|activating|deactivating|failed|reloading)
+      ;;
+    *)
+      fail "ambiguous systemd active state for $SERVICE_NAME; no managed files were removed and metadata was retained (load=$load_state, active=${active_state:-unknown})"
+      ;;
+  esac
+
+  if ! systemctl stop "$SERVICE_NAME"; then
+    fail "could not stop $SERVICE_NAME; no managed files were removed and metadata was retained"
+  fi
+  prove_inactive "$SERVICE_NAME"
+  info "Stopped: $SERVICE_NAME"
+}
+
 assert_unowned_unit_not_active() {
   local unit="$1"
   local state=""
@@ -664,10 +709,7 @@ else
 fi
 
 if (( SERVICE_OWNED == 1 )); then
-  systemctl stop "$SERVICE_NAME" || \
-    fail "could not stop $SERVICE_NAME; no managed files were removed and metadata was retained"
-  prove_inactive "$SERVICE_NAME"
-  info "Stopped: $SERVICE_NAME"
+  resolve_service_stop_state
 else
   assert_unowned_unit_not_active "$SERVICE_NAME"
 fi
