@@ -241,7 +241,7 @@ The README keeps the common user path concise. More detailed documentation is sp
 
 **[Installation and configuration](docs/INSTALLATION.md)** · **[Troubleshooting](docs/TROUBLESHOOTING.md)** · **[How it works](docs/HOW_IT_WORKS.md)** · **[Security](SECURITY.md)**
 
-The Simplified Chinese source semantics are finalized first. English and Japanese versions keep the same commands, paths, flags, and security meaning.
+All language versions keep the same commands, paths, flags, and security meaning.
 
 ---
 
