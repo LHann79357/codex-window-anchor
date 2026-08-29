@@ -247,9 +247,8 @@ The Simplified Chinese source semantics are finalized first. English and Japanes
 
 ## License
 
-> [!NOTE]
-> The Public V1 license has not been finalized yet. License selection and review will be completed separately before the public `v1.0.0` release. This documentation does not currently assume MIT, Apache-2.0, or any other license.
+Codex Window Anchor is licensed under the [Apache License 2.0](LICENSE).
 
 ---
 
-Codex Window Anchor is an independent project and is not an official OpenAI product. References to Usage Window behavior describe observed behavior and implementation experience only; they should not be interpreted as an OpenAI guarantee about future ChatGPT plans, Codex models, usage limits, quota, authentication, or usage-window behavior.
+Codex Window Anchor is an independent open-source project and is not an official OpenAI product. References to Usage Window behavior describe observed behavior and implementation experience only; they should not be interpreted as an OpenAI guarantee about future ChatGPT plans, Codex models, usage limits, quota, authentication, or usage-window behavior.

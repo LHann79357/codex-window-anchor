@@ -251,9 +251,8 @@ README は一般ユーザーが必要とする主経路だけを簡潔に残し�
 
 ## License
 
-> [!NOTE]
-> Public V1 の License はまだ最終決定していません。`v1.0.0` を正式公開する前に、別途 License の選択とレビューを完了します。現時点では MIT、Apache-2.0、その他の License を前提としていません。
+Codex Window Anchor は [Apache License 2.0](LICENSE) の下で公開されています。
 
 ---
 
-Codex Window Anchor は独立したプロジェクトであり、OpenAI 公式製品ではありません。本プロジェクトの Usage Window に関する記述は観測された挙動と実装経験のみを表し、将来の ChatGPT plans、Codex models、usage limits、quota、authentication、usage-window behavior に関する OpenAI の保証を意味しません。
+Codex Window Anchor は独立したオープンソースプロジェクトであり、OpenAI 公式製品ではありません。本プロジェクトの Usage Window に関する記述は観測された挙動と実装経験のみを表し、将来の ChatGPT plans、Codex models、usage limits、quota、authentication、usage-window behavior に関する OpenAI の保証を意味しません。

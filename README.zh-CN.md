@@ -247,9 +247,8 @@ README 只保留普通用户最需要的主路径。更完整的说明分别放�
 
 ## License
 
-> [!NOTE]
-> Public V1 License 尚未最终决定。在 `v1.0.0` 正式公开前将单独完成 License 选择与审查；当前文档不预设 MIT、Apache-2.0 或其它 License。
+Codex Window Anchor 采用 [Apache License 2.0](LICENSE) 开源许可证。
 
 ---
 
-Codex Window Anchor 是独立项目，不是 OpenAI 官方产品。本项目对 Usage Window 的描述仅代表观察到的行为和实现经验，不应被理解为 OpenAI 对未来 ChatGPT plans、Codex models、usage limits、quota、authentication 或 usage-window behavior 的保证。
+Codex Window Anchor 是独立开源项目，不是 OpenAI 官方产品。本项目对 Usage Window 的描述仅代表观察到的行为和实现经验，不应被理解为 OpenAI 对未来 ChatGPT plans、Codex models、usage limits、quota、authentication 或 usage-window behavior 的保证。
