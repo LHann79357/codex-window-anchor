@@ -1,12 +1,12 @@
-**语言：** [English](README.md) · **简体中文** · [日本語](README.ja.md)
-
 # Codex Window Anchor
+
+**语言：** [English](README.md) · **简体中文** · [日本語](README.ja.md)
 
 **基于 OpenAI 官方 Codex CLI 的自托管定时 Anchor 工具，用于围绕观察到的 Codex Usage Window 行为，在用户自己选择的时间运行最小真实请求。**
 
 Codex Window Anchor 面向希望把这件事放到 Linux 服务器上稳定运行、又不想引入浏览器自动化、API Key 定时任务、第三方 keepalive 服务、Web 面板或常驻 daemon 的用户。它使用独立的 `codex-anchor` 非 root 用户、systemd oneshot service 和用户自行配置的 Timer；安装完成后不会自动登录 ChatGPT、不会自动创建时间表，也不会自动开始发送请求。
 
-> [重点！！！]
+> [!IMPORTANT]
 > **Codex Window Anchor 不会增加 Codex 配额、创建额外额度、绕过限制、强制重置配额，也不会提供“无限 Codex”。**
 >
 > 本项目所说的 Usage Window / usage-window anchoring 来自实际运行中观察到的行为（observed behavior），不是 OpenAI 对 ChatGPT、Codex、模型、配额或 Usage Window 的永久产品承诺。
@@ -104,7 +104,7 @@ systemctl list-timers codex-window-anchor.timer
 
 执行 Device Code 登录时，终端会显示 OpenAI 提供的登录地址和一次性代码；在浏览器中使用拥有 Codex 访问权限的 ChatGPT 账号完成授权即可。OpenAI 官方资料可直接查看 [Codex GitHub](https://github.com/openai/codex) 和 [Codex Authentication](https://developers.openai.com/codex/auth)。
 
-> [注意！！！]
+> [!NOTE]
 > 安装完成时没有公共默认 Schedule，也没有正在运行的 Timer。`codex-window-anchor-schedule` 生成时间表后仍保持 `disabled / inactive`；在你后续明确确认并启用之前，自动调度不会开始。
 
 ### 可选但推荐：启用 Timer 前先手动验证一次
@@ -218,7 +218,7 @@ sudo ./scripts/uninstall.sh --purge-user --yes
 
 Anchor 请求以 dedicated non-root `codex-anchor` 用户执行，项目管理的 runtime 和配置由 root 持有；运行时使用 read-only sandbox、ephemeral session 和显式最小环境，不依赖 API Key，也没有无限重试循环。Public V1 的设计目标不是“自动接管服务器”，而是尽量把作用范围限制在它自己的用户、文件、service 和 Timer 上。
 
-> [警告！！！]
+> [!WARNING]
 > Codex 登录凭据可能保存在 `/home/codex-anchor/.codex/` 中。如果当前 Codex 使用 file-based credential storage，其中的 `auth.json` 属于密码级敏感信息。
 >
 > **不要把 `auth.json`、ChatGPT token、API Key、SSH private key、服务器密码或私有代理凭据提交到 GitHub、Issue、日志分享或聊天记录。**
@@ -233,13 +233,13 @@ README 只保留普通用户最需要的主路径。更完整的说明分别放�
 
 **[详细安装与配置](docs/zh-CN/INSTALLATION.md)** · **[故障排查](docs/zh-CN/TROUBLESHOOTING.md)** · **[工作原理](docs/zh-CN/HOW_IT_WORKS.md)** · **[安全说明](SECURITY.zh-CN.md)**
 
-中文技术语义确认后，English 和日本語版本会保持同一信息结构进行翻译；命令、路径、参数和安全含义不会因为语言不同而改变。
+三个语言版本保持相同的命令、路径、参数和安全含义。
 
 ---
 
 ## License
 
-> [注意！！！]
+> [!NOTE]
 > Public V1 License 尚未最终决定。在 `v1.0.0` 正式公开前将单独完成 License 选择与审查；当前文档不预设 MIT、Apache-2.0 或其它 License。
 
 ---
