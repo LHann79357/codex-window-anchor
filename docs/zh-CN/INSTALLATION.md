@@ -1,3 +1,5 @@
+**语言：** [English](../INSTALLATION.md) · **简体中文** · [日本語](../ja/INSTALLATION.md)
+
 # Codex Window Anchor — 安装与配置
 
 本文档提供 Codex Window Anchor Public V1 的完整安装和日常管理流程。目标是让用户先沿着一条明确的主路径完成部署，再在需要时查看高级安装选项、重装和卸载说明。

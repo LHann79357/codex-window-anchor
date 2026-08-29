@@ -1,3 +1,5 @@
+**言語:** [English](../TROUBLESHOOTING.md) · [简体中文](../zh-CN/TROUBLESHOOTING.md) · **日本語**
+
 # Codex Window Anchor — トラブルシューティング
 
 このドキュメントは Codex Window Anchor Public V1 のインストール、ChatGPT ログイン、手動 Anchor、Schedule、systemd Timer、アンインストールに関する問題の切り分けに使います。

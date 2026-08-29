@@ -1,3 +1,5 @@
+**言語:** [English](../HOW_IT_WORKS.md) · [简体中文](../zh-CN/HOW_IT_WORKS.md) · **日本語**
+
 # Codex Window Anchor — 仕組み
 
 このドキュメントでは、Codex Window Anchor Public V1 の中核アーキテクチャ、1 回の Anchor のライフサイクル、そして runtime、認証、Schedule、アンインストールを別々の境界として設計している理由を説明します。

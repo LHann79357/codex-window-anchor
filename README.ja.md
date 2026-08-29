@@ -1,6 +1,6 @@
-# Codex Window Anchor
-
 **言語:** [English](README.md) · [简体中文](README.zh-CN.md) · **日本語**
+
+# Codex Window Anchor
 
 **OpenAI 公式 Codex CLI をベースにしたセルフホスト型の定時 Anchor ツールです。観測された Codex Usage Window の挙動を前提に、ユーザーが自分で選んだ時刻に最小限の実リクエストを実行します。**
 

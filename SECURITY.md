@@ -1,3 +1,5 @@
+**Language:** **English** · [简体中文](SECURITY.zh-CN.md) · [日本語](SECURITY.ja.md)
+
 # Codex Window Anchor — Security Policy
 
 Codex Window Anchor is a lightweight systemd scheduling layer that runs the official OpenAI Codex CLI on a user's own Linux host. The project touches local system privileges, ChatGPT authentication state, systemd service/timer configuration, and real Codex requests, so security vulnerabilities should be reported through a **private channel**, not a public Issue.

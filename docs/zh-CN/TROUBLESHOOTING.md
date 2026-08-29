@@ -1,3 +1,5 @@
+**语言：** [English](../TROUBLESHOOTING.md) · **简体中文** · [日本語](../ja/TROUBLESHOOTING.md)
+
 # Codex Window Anchor — 故障排查
 
 本文档用于排查 Codex Window Anchor Public V1 的安装、ChatGPT 登录、手动 Anchor、Schedule、systemd Timer 和卸载问题。

@@ -1,3 +1,5 @@
+**语言：** [English](SECURITY.md) · **简体中文** · [日本語](SECURITY.ja.md)
+
 # Codex Window Anchor — 安全政策
 
 Codex Window Anchor 是一个在用户自己的 Linux 主机上运行 OpenAI 官方 Codex CLI 的轻量 systemd 调度层。项目涉及本地系统权限、ChatGPT authentication state、systemd service/timer 和真实 Codex 请求，因此安全问题应当通过**私密渠道**报告，而不是公开 Issue。

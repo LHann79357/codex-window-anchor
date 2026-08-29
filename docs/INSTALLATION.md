@@ -1,3 +1,5 @@
+**Language:** **English** · [简体中文](zh-CN/INSTALLATION.md) · [日本語](ja/INSTALLATION.md)
+
 # Codex Window Anchor — Installation and Configuration
 
 This document provides the complete Public V1 installation and day-to-day management flow for Codex Window Anchor. The goal is to give users one clear deployment path first, with advanced installation options, runtime updates, reinstall, and uninstall details available when needed.

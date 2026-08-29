@@ -1,3 +1,5 @@
+**语言：** [English](../HOW_IT_WORKS.md) · **简体中文** · [日本語](../ja/HOW_IT_WORKS.md)
+
 # Codex Window Anchor — 工作原理
 
 本文档解释 Codex Window Anchor Public V1 的核心架构、一次 Anchor 的生命周期，以及为什么项目把 runtime、认证、Schedule 和卸载设计成彼此分离的边界。

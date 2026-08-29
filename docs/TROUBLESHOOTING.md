@@ -1,3 +1,5 @@
+**Language:** **English** · [简体中文](zh-CN/TROUBLESHOOTING.md) · [日本語](ja/TROUBLESHOOTING.md)
+
 # Codex Window Anchor — Troubleshooting
 
 This document is for troubleshooting Codex Window Anchor Public V1 installation, ChatGPT sign-in, manual Anchor runs, Schedule generation, systemd Timer behavior, and uninstall.

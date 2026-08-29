@@ -1,3 +1,5 @@
+**Language:** **English** · [简体中文](zh-CN/HOW_IT_WORKS.md) · [日本語](ja/HOW_IT_WORKS.md)
+
 # Codex Window Anchor — How It Works
 
 This document explains the core Public V1 architecture of Codex Window Anchor, the lifecycle of one Anchor, and why the project separates runtime, authentication, scheduling, and uninstall into distinct boundaries.

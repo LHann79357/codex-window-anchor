@@ -1,3 +1,5 @@
+**Language:** **English** · [简体中文](README.zh-CN.md) · [日本語](README.ja.md)
+
 # Codex Window Anchor
 
 **A self-hosted scheduled Anchor tool built around the official OpenAI Codex CLI. It runs a minimal real request at times you choose, based on observed Codex Usage Window behavior.**
