@@ -1,6 +1,14 @@
-**Language:** **English** · [简体中文](README.zh-CN.md) · [日本語](README.ja.md)
+<p align="center">
+  <img src="./assets/banner-reset.png" alt="Codex Window Anchor banner" width="100%">
+</p>
 
-# Codex Window Anchor
+<h1 align="center">Codex Window Anchor</h1>
+
+<p align="center">
+  <strong>English</strong> ·
+  <a href="./README.zh-CN.md">简体中文</a> ·
+  <a href="./README.ja.md">日本語</a>
+</p>
 
 **A self-hosted scheduled Anchor tool built around the official OpenAI Codex CLI. It runs a minimal real request at times you choose, based on observed Codex Usage Window behavior.**
 

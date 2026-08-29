@@ -1,6 +1,14 @@
-# Codex Window Anchor
+<p align="center">
+  <img src="./assets/banner-reset.png" alt="Codex Window Anchor 横幅" width="100%">
+</p>
 
-**语言：** [English](README.md) · **简体中文** · [日本語](README.ja.md)
+<h1 align="center">Codex Window Anchor</h1>
+
+<p align="center">
+  <a href="./README.md">English</a> ·
+  <strong>简体中文</strong> ·
+  <a href="./README.ja.md">日本語</a>
+</p>
 
 **基于 OpenAI 官方 Codex CLI 的自托管定时 Anchor 工具，用于围绕观察到的 Codex Usage Window 行为，在用户自己选择的时间运行最小真实请求。**
 
